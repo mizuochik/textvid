@@ -1,5 +1,5 @@
 [package]
-name = "textvid-api"
+name = "textvid_api"
 version = "0.1.0"
 edition = "2021"
 
