@@ -20,7 +20,8 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           push: true
-          tags: mizuochik/textvid-api:latest
+          tags: mizuochik/textvid-api:${{ github.sha }}
           file: docker/textvid-api.Dockerfile
+          platforms: linux/amd64,linux/arm64
           cache-from: type=gha
           cache-to: type=gha,mode=max
