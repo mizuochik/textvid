@@ -1,19 +1,20 @@
-use lambda_http::{run, service_fn, Error, IntoResponse, Request, Response};
-
-async fn function_handler(_: Request) -> Result<impl IntoResponse, Error> {
-    let resp = Response::builder()
-        .status(200)
-        .header("content-type", "text/html")
-        .body("Hello AWS Lambda HTTP request")
-        .map_err(Box::new)?;
-    Ok(resp)
-}
+use axum;
+use axum::{routing, Router};
+use std::net::SocketAddr;
+use tokio;
 
 #[tokio::main]
-async fn main() -> Result<(), Error> {
-    tracing_subscriber::fmt()
-        .with_max_level(tracing::Level::INFO)
-        .without_time()
-        .init();
-    run(service_fn(function_handler)).await
+async fn main() {
+    tracing_subscriber::fmt::init();
+    let app = Router::new().route("/", routing::get(root));
+    let addr = SocketAddr::from(([127, 0, 0, 1], 8080));
+    tracing::info!("listening on {}", addr);
+    axum::Server::bind(&addr)
+        .serve(app.into_make_service())
+        .await
+        .unwrap();
+}
+
+async fn root() -> &'static str {
+    "Hello World!"
 }
