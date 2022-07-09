@@ -1,6 +1,6 @@
-use lambda_http::{run, service_fn, Error, IntoResponse, Request, RequestExt, Response};
+use lambda_http::{run, service_fn, Error, IntoResponse, Request, Response};
 
-async fn function_handler(event: Request) -> Result<impl IntoResponse, Error> {
+async fn function_handler(_: Request) -> Result<impl IntoResponse, Error> {
     let resp = Response::builder()
         .status(200)
         .header("content-type", "text/html")
