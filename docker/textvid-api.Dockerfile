@@ -11,9 +11,8 @@ RUN --mount=type=cache,target=/usr/local/cargo/registry \
     && cargo build --release -p textvid-api --target $TARGET \
     && mv target/$TARGET/release/textvid-api /tmp
 
-FROM public.ecr.aws/lambda/provided:al2
+FROM gcr.io/distroless/static
 
 WORKDIR /app
-COPY scripts/start_api.sh .
 COPY --from=rust /tmp/textvid-api .
-ENTRYPOINT [ "/app/start_api.sh" ]
+ENTRYPOINT [ "/app/textvid-api" ]
