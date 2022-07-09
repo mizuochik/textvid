@@ -3,7 +3,7 @@
 set -eu
 
 if [[ -z ${AWS_LAMBDA_RUNTIME_API:-} ]]; then
-    exec /aws-lambda-rie /textvid_api $@
+    exec aws-lambda-rie /app/textvid_api $@
 else
-    exec /textvid_api $@
+    exec /app/textvid_api $@
 fi

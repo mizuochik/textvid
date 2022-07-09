@@ -1,7 +1,9 @@
 FROM rust:1.62 AS rust
+
 RUN rustup target add x86_64-unknown-linux-musl
 RUN rustup target add aarch64-unknown-linux-musl
-WORKDIR /tmp/build
+
+WORKDIR /build
 COPY . ./
 RUN --mount=type=cache,target=/usr/local/cargo/registry \
     --mount=type=cache,target=target \
@@ -9,10 +11,9 @@ RUN --mount=type=cache,target=/usr/local/cargo/registry \
     && cargo build --release -p textvid-api --target $TARGET \
     && cp target/$TARGET/release/textvid_api /tmp
 
-FROM alpine
-WORKDIR /
-ADD https://github.com/aws/aws-lambda-runtime-interface-emulator/releases/latest/download/aws-lambda-rie .
-RUN chmod +x aws-lambda-rie
+FROM public.ecr.aws/lambda/provided:al2
+
+WORKDIR /app
 COPY scripts/start_api.sh .
 COPY --from=rust /tmp/textvid_api .
-ENTRYPOINT [ "/start_api.sh" ]
+ENTRYPOINT [ "/app/start_api.sh" ]
