@@ -11,7 +11,7 @@ RUN --mount=type=cache,target=/usr/local/cargo/registry \
     && cargo build --release -p textvid-api --target $TARGET \
     && mv target/$TARGET/release/textvid-api /tmp
 
-FROM gcr.io/distroless/static
+FROM alpine
 
 WORKDIR /app
 COPY --from=rust /tmp/textvid-api .

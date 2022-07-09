@@ -1,6 +1,7 @@
 use anyhow::{self, Context};
 use axum::{routing, Router};
 use std::net::SocketAddr;
+
 use tokio::signal::unix::{self, SignalKind};
 
 #[tokio::main]
@@ -11,7 +12,7 @@ async fn main() -> anyhow::Result<()> {
 }
 
 async fn run_server(r: Router) -> anyhow::Result<()> {
-    let addr = SocketAddr::from(([127, 0, 0, 1], 8080));
+    let addr = SocketAddr::from(([0, 0, 0, 0], 8080));
     tracing::info!("Listening on {}", addr);
     axum::Server::bind(&addr)
         .serve(r.into_make_service())
