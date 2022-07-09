@@ -9,11 +9,11 @@ RUN --mount=type=cache,target=/usr/local/cargo/registry \
     --mount=type=cache,target=target \
     TARGET=$(uname -m)-unknown-linux-musl \
     && cargo build --release -p textvid-api --target $TARGET \
-    && cp target/$TARGET/release/textvid_api /tmp
+    && mv target/$TARGET/release/textvid-api /tmp
 
 FROM public.ecr.aws/lambda/provided:al2
 
 WORKDIR /app
 COPY scripts/start_api.sh .
-COPY --from=rust /tmp/textvid_api .
+COPY --from=rust /tmp/textvid-api .
 ENTRYPOINT [ "/app/start_api.sh" ]
