@@ -2,6 +2,7 @@ use anyhow::{anyhow, Context};
 use axum::{self, body::HttpBody, routing::Router};
 use lambda_http::Service;
 use std::{net::SocketAddr, sync::Arc};
+use tokio::signal::unix;
 use tokio::sync::Mutex;
 
 pub struct Handler {}
@@ -22,9 +23,20 @@ impl Server {
         tracing::info!("Listening on {}", addr);
         axum::Server::bind(&addr)
             .serve(self.router.into_make_service())
+            .with_graceful_shutdown(handle_signal())
             .await
             .context("serve")
     }
+}
+
+async fn handle_signal() {
+    let mut term = unix::signal(unix::SignalKind::terminate()).unwrap();
+    let mut int = unix::signal(unix::SignalKind::interrupt()).unwrap();
+    tokio::select! {
+        _ = term.recv() => {},
+        _ = int.recv() => {},
+    }
+    tracing::info!("Shutting down ...");
 }
 
 pub struct Lambda {
