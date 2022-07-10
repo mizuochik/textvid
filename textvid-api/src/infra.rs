@@ -6,7 +6,7 @@ pub struct Handler {}
 
 impl Handler {
     pub async fn root(&self) -> &'static str {
-        "hello world"
+        "Hello Textvid"
     }
 }
 
