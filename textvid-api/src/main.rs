@@ -1,5 +1,3 @@
-use anyhow::anyhow;
-
 mod di;
 mod infra;
 
@@ -8,7 +6,7 @@ async fn main() -> anyhow::Result<()> {
     tracing_subscriber::fmt::init();
     let d = di::DI::new();
     if std::env::var("AWS_LAMBDA_RUNTIME_API").is_ok() {
-        Err(anyhow!("not implemented"))
+        d.lambda.run().await
     } else {
         d.server.serve().await
     }
