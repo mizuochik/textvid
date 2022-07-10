@@ -11,7 +11,7 @@ async fn main() -> anyhow::Result<()> {
     if env::var("AWS_LAMBDA_RUNTIME_API").is_ok() {
         run_lambda(handler).await?;
     } else {
-        run_server(handler, h).await?;
+        run_server(h).await?;
     }
     Ok(())
 }
@@ -29,15 +29,22 @@ where
 
 async fn run_server(h: Handler) -> anyhow::Result<()> {
     let addr = ([127, 0, 0, 1], 3000).into();
-    let make_svc = make_service_fn(|_| async {
-        Ok::<_, Infallible>(service_fn(|_: Request<Body>| async {
-            let req = Request::builder().body(lambda_http::Body::Empty)?;
-            h.handle(req);
-            let res = Response::builder()
-                .status(200)
-                .body(Body::from("Hello Textvid"))?;
-            Ok::<_, anyhow::Error>(res)
-        }))
+    let h = Arc::new(h);
+    let make_svc = make_service_fn(|_| {
+        let h = h.clone();
+        async {
+            Ok::<_, Infallible>(service_fn(move |_: Request<Body>| {
+                let h = h.clone();
+                async move {
+                    let req = Request::builder().body(lambda_http::Body::Empty)?;
+                    let res = h.handle(req).await.map_err(|e| anyhow::anyhow!("lambda: {}", e))?;
+                    let res = Response::builder()
+                        .status(200)
+                        .body(Body::from("Hello Textvid"))?;
+                    Ok::<_, anyhow::Error>(res)
+                }
+            }))
+        }
     });
     let server = Server::bind(&addr).serve(make_svc);
     if let Err(e) = server.await {
