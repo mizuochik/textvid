@@ -1,12 +1,17 @@
+use hyper::service::{make_service_fn, service_fn};
+use hyper::{Body, Request, Response, Server};
+use std::convert::Infallible;
+use std::env;
 use std::future::Future;
-
-use anyhow;
-use lambda_http;
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
     tracing_subscriber::fmt::init();
-    run_lambda(handler).await?;
+    if env::var("AWS_LAMBDA_RUNTIME_API").is_ok() {
+        run_lambda(handler).await?;
+    } else {
+        run_server(handler).await?;
+    }
     Ok(())
 }
 
@@ -19,6 +24,28 @@ where
     lambda_http::run(lambda_http::service_fn(f))
         .await
         .map_err(|e| anyhow::anyhow!("lambda: {}", e))
+}
+
+async fn run_server<F, R, T>(_f: F) -> anyhow::Result<()>
+where
+    R: lambda_http::IntoResponse,
+    F: Fn(lambda_http::Request) -> T,
+    T: Future<Output = Result<R, lambda_http::Error>>,
+{
+    let addr = ([127, 0, 0, 1], 3000).into();
+    let make_svc = make_service_fn(|_| async move {
+        Ok::<_, Infallible>(service_fn(move |_: Request<Body>| async move {
+            let res = Response::builder()
+                .status(200)
+                .body(Body::from("Hello Textvid"))?;
+            Ok::<_, anyhow::Error>(res)
+        }))
+    });
+    let server = Server::bind(&addr).serve(make_svc);
+    if let Err(e) = server.await {
+        eprintln!("server error: {}", e);
+    }
+    Ok(())
 }
 
 async fn handler(
