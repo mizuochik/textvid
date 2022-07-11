@@ -96,6 +96,21 @@ dependencies = [
 ]
 
 [[package]]
+name = "axum-aws-lambda"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e6eab91153907f1b91575d00d862ba49d8d8777367316e36e573644db694dcc7"
+dependencies = [
+ "axum",
+ "bytes",
+ "http",
+ "hyper",
+ "lambda_http",
+ "tower",
+ "tower-service",
+]
+
+[[package]]
 name = "axum-core"
 version = "0.2.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -740,11 +755,13 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "axum",
+ "axum-aws-lambda",
  "http",
  "hyper",
  "lambda_http",
  "lambda_runtime",
  "tokio",
+ "tower",
  "tracing",
  "tracing-subscriber",
 ]
