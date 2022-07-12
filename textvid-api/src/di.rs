@@ -3,18 +3,31 @@ use std::sync::Arc;
 use crate::infra;
 use axum::{routing, Router};
 
-pub struct DI {
-    pub server: infra::Server,
-    pub lambda: infra::Lambda,
-}
+pub struct Di {}
 
-impl DI {
+impl Di {
     pub fn new() -> Self {
-        let h = Arc::new(infra::Handler {});
-        let r = Router::new().route("/", routing::get(|| async move { h.root().await }));
-        DI {
-            server: infra::Server { router: r.clone() },
-            lambda: infra::Lambda { router: r },
+        Di {}
+    }
+
+    pub fn server(&self) -> infra::Server {
+        infra::Server {
+            router: self.router(),
         }
+    }
+
+    pub fn lambda(&self) -> infra::Lambda {
+        infra::Lambda {
+            router: self.router(),
+        }
+    }
+
+    fn handler(&self) -> infra::Handler {
+        infra::Handler {}
+    }
+
+    fn router(&self) -> Router {
+        let h = Arc::new(self.handler());
+        Router::new().route("/", routing::get(|| async move { h.root().await }))
     }
 }
