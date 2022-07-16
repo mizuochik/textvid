@@ -4,8 +4,17 @@ on:
     branches:
       - main
 jobs:
-  docker:
+  qa:
     runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Build
+        run: cargo build --verbose
+      - name: Run tests
+        run: cargo test --verbose
+  publish:
+    runs-on: ubuntu-latest
+    needs: qa
     steps:
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
