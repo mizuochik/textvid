@@ -36,5 +36,5 @@ jobs:
           tags: mizuochik/textvid-api:${{ github.sha }}
           file: docker/textvid-api.Dockerfile
           platforms: linux/arm64
-          cache-from: type=gha,scope=${{ matrix.platform }}
-          cache-to: type=gha,mode=max,scope=${{ matrix.platform }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
