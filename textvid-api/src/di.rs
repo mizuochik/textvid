@@ -28,6 +28,6 @@ impl Di {
 
     fn router(&self) -> Router {
         let h = Arc::new(self.handler());
-        Router::new().route("/", routing::get(|| async move { h.root().await }))
+        Router::new().route("/v1", routing::get(|| async move { h.root().await }))
     }
 }
